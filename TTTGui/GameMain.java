@@ -58,13 +58,25 @@ public class GameMain extends JPanel {
             }
         });
 
-        statusBar = new JLabel();
-        statusBar.setFont(FONT_STATUS);
-        statusBar.setBackground(COLOR_BG_STATUS);
-        statusBar.setOpaque(true);
-        statusBar.setPreferredSize(new Dimension(300, 30));
-        statusBar.setHorizontalAlignment(JLabel.LEFT);
+        statusBar = new JLabel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                // Custom background with transparency
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f)); // 60% opacity
+                g2.setColor(new Color(0, 0, 0)); // dark background
+                g2.fillRect(0, 0, getWidth(), getHeight());
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        statusBar.setFont(new Font("SansSerif", Font.BOLD, 16));
+        statusBar.setForeground(Color.WHITE);
+        statusBar.setOpaque(false); // kita lukis sendiri background-nya
+        statusBar.setPreferredSize(new Dimension(300, 40));
+        statusBar.setHorizontalAlignment(JLabel.CENTER);
         statusBar.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 12));
+
 
         super.setLayout(new BorderLayout());
         super.add(statusBar, BorderLayout.PAGE_END);
