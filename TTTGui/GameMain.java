@@ -2,66 +2,62 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.sql.*;
-import java.util.Scanner;
-/**
- * Tic-Tac-Toe: Two-player Graphic version with better OO design.
- * The Board and Cell classes are separated in their own classes.
- */
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.IOException;
 
 public class GameMain extends JPanel {
-    private static final long serialVersionUID = 1L; // to prevent serializable warning
+    private static final long serialVersionUID = 1L;
 
-    // Define named constants for the drawing graphics
     public static final String TITLE = "Tic Tac Toe";
     public static final Color COLOR_BG = Color.WHITE;
     public static final Color COLOR_BG_STATUS = new Color(204, 204, 204);
-    public static final Color COLOR_CROSS = new Color(239, 105, 80);  // Red #EF6950
-    public static final Color COLOR_NOUGHT = new Color(64, 154, 225); // Blue #409AE1
+    public static final Color COLOR_CROSS = new Color(239, 105, 80);
+    public static final Color COLOR_NOUGHT = new Color(64, 154, 225);
     public static final Font FONT_STATUS = new Font("OCR A Extended", Font.PLAIN, 14);
     private static String rPass;
 
-    // Define game objects
-    private Board board;         // the game board
-    private State currentState;  // the current state of the game
-    private Seed currentPlayer;  // the current player
-    private JLabel statusBar;    // for displaying status message
+    private Board board;
+    private State currentState;
+    private Seed currentPlayer;
+    private JLabel statusBar;
+    private Image backgroundImage;
 
-    /**
-     * Constructor to setup the UI and game components
-     */
     private String playerX;
     private String playerO;
 
     public GameMain(String playerX, String playerO) {
         this.playerX = playerX;
         this.playerO = playerO;
-        // This JPanel fires MouseEvent
+
+        // Load background image from file
+        try {
+            backgroundImage = ImageIO.read(new File("src/TTTGui/forGame.jpg"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         super.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {  // mouse-clicked handler
+            public void mouseClicked(MouseEvent e) {
                 int mouseX = e.getX();
                 int mouseY = e.getY();
-                // Get the row and column clicked
                 int row = mouseY / Cell.SIZE;
                 int col = mouseX / Cell.SIZE;
 
                 if (currentState == State.PLAYING) {
                     if (row >= 0 && row < Board.ROWS && col >= 0 && col < Board.COLS
                             && board.cells[row][col].content == Seed.NO_SEED) {
-                        // Update cells[][] and return the new game state after the move
                         currentState = board.stepGame(currentPlayer, row, col);
-                        // Switch player
                         currentPlayer = (currentPlayer == Seed.CROSS) ? Seed.NOUGHT : Seed.CROSS;
                     }
-                } else {        // game over
-                    newGame();  // restart the game
+                } else {
+                    newGame();
                 }
-                // Refresh the drawing canvas
-                repaint();  // Callback paintComponent().
+                repaint();
             }
         });
 
-        // Setup the status bar (JLabel) to display status message
         statusBar = new JLabel();
         statusBar.setFont(FONT_STATUS);
         statusBar.setBackground(COLOR_BG_STATUS);
@@ -71,48 +67,39 @@ public class GameMain extends JPanel {
         statusBar.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 12));
 
         super.setLayout(new BorderLayout());
-        super.add(statusBar, BorderLayout.PAGE_END); // same as SOUTH
+        super.add(statusBar, BorderLayout.PAGE_END);
         super.setPreferredSize(new Dimension(Board.CANVAS_WIDTH, Board.CANVAS_HEIGHT + 30));
-        // account for statusBar in height
         super.setBorder(BorderFactory.createLineBorder(COLOR_BG_STATUS, 2, false));
 
-        // Set up Game
         initGame();
         newGame();
     }
 
-    /**
-     * Initialize the game (run once)
-     */
     public void initGame() {
-        board = new Board();  // allocate the game-board
+        board = new Board();
     }
 
-    /**
-     * Reset the game-board contents and the current-state, ready for new game
-     */
     public void newGame() {
         for (int row = 0; row < Board.ROWS; ++row) {
             for (int col = 0; col < Board.COLS; ++col) {
-                board.cells[row][col].content = Seed.NO_SEED; // all cells empty
+                board.cells[row][col].content = Seed.NO_SEED;
             }
         }
-        currentPlayer = Seed.CROSS;    // cross plays first
-        currentState = State.PLAYING;  // ready to play
+        currentPlayer = Seed.CROSS;
+        currentState = State.PLAYING;
         SoundPlayer.play("start.wav");
     }
 
-    /**
-     * Custom painting codes on this JPanel
-     */
     @Override
-    public void paintComponent(Graphics g) {  // Callback via repaint()
+    public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        setBackground(COLOR_BG); // set its background color
 
-        board.paint(g);  // ask the game board to paint itself
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
 
-        // Print status-bar message
+        board.paint(g);
+
         if (currentState == State.PLAYING) {
             statusBar.setForeground(Color.BLACK);
             statusBar.setText((currentPlayer == Seed.CROSS) ? "X's Turn" : "O's Turn");
@@ -134,21 +121,17 @@ public class GameMain extends JPanel {
         }
     }
 
-    /**
-     * The entry "main" method
-     */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame(TITLE);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setContentPane(new LoginPanel(frame)); // show login panel first
+            frame.setContentPane(new LoginPanel(frame));
             frame.pack();
             frame.setSize(450, 250);
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         });
     }
-
 
     static String retrievePassword(String un) throws ClassNotFoundException {
         String host, port, databaseName, userName, password;
@@ -178,6 +161,7 @@ public class GameMain extends JPanel {
 
         return null;
     }
+
     private void updateStats(String winner, String loser) {
         String host = "mysql-tictactoe-daffaagungpratama2005-3812.c.aivencloud.com";
         String port = "12692";
