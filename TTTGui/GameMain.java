@@ -133,6 +133,7 @@ public class GameMain extends JPanel {
         }
     }
 
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame(TITLE);
