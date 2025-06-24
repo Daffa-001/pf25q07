@@ -32,7 +32,7 @@ public class GameMain extends JPanel {
 
         // Load background image from file
         try {
-            backgroundImage = ImageIO.read(new File("src/TTTGui/forGame.jpg"));
+            backgroundImage = ImageIO.read(new File("TTTGui/forGame.jpg"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -132,6 +132,7 @@ public class GameMain extends JPanel {
             updateStats(playerO, playerX);
         }
     }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
