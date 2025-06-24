@@ -49,6 +49,9 @@ public class GameMain extends JPanel {
                     if (row >= 0 && row < Board.ROWS && col >= 0 && col < Board.COLS
                             && board.cells[row][col].content == Seed.NO_SEED) {
                         currentState = board.stepGame(currentPlayer, row, col);
+                        if (currentState != State.PLAYING) {
+                            handleGameEnd();
+                        }
                         currentPlayer = (currentPlayer == Seed.CROSS) ? Seed.NOUGHT : Seed.CROSS;
                     }
                 } else {
@@ -113,23 +116,13 @@ public class GameMain extends JPanel {
         board.paint(g);
 
         if (currentState == State.PLAYING) {
-            statusBar.setForeground(Color.BLACK);
             statusBar.setText((currentPlayer == Seed.CROSS) ? "X's Turn" : "O's Turn");
         } else if (currentState == State.DRAW) {
-            statusBar.setForeground(Color.RED);
             statusBar.setText("It's a Draw! Click to play again.");
-            SoundPlayer.play("draw.wav");
-            updateStatsDraw();
         } else if (currentState == State.CROSS_WON) {
-            statusBar.setForeground(Color.RED);
             statusBar.setText("'X' Won! Click to play again.");
-            SoundPlayer.play("x_win.wav");
-            updateStats(playerX, playerO);
         } else if (currentState == State.NOUGHT_WON) {
-            statusBar.setForeground(Color.RED);
             statusBar.setText("'O' Won! Click to play again.");
-            SoundPlayer.play("o_win.wav");
-            updateStats(playerO, playerX);
         }
     }
 
@@ -222,6 +215,19 @@ public class GameMain extends JPanel {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+    // method to handle game end state dan play audio sekali
+    private void handleGameEnd() {
+        if (currentState == State.CROSS_WON) {
+            SoundPlayer.play("x_win.wav");
+            updateStats(playerX, playerO);
+        } else if (currentState == State.NOUGHT_WON) {
+            SoundPlayer.play("o_win.wav");
+            updateStats(playerO, playerX);
+        } else if (currentState == State.DRAW) {
+            SoundPlayer.play("draw.wav");
+            updateStatsDraw();
         }
     }
 }
