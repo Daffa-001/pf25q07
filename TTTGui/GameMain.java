@@ -7,6 +7,7 @@ import java.util.Scanner;
  * Tic-Tac-Toe: Two-player Graphic version with better OO design.
  * The Board and Cell classes are separated in their own classes.
  */
+
 public class GameMain extends JPanel {
     private static final long serialVersionUID = 1L; // to prevent serializable warning
 
